@@ -1,0 +1,16 @@
+# Ignore CSV files
+*.csv
+
+# Ignore Jupyter Notebook files
+*.ipynb
+
+# Ignore Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Ignore logs and temp files
+*.log
+*.tmp
+*.pdf
+# Ignore system files (Windows/macOS)
+Thumbs.db
+.DS_Store
