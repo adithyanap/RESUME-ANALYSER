@@ -48,11 +48,11 @@ def main():
     data = pdf2text()
 
     for i in data:
-        comp_text += f"{data} "
-
+        comp_text += f"{i} "
         for j in unique_skills:
-            if i == j:
-                skill_index.append(j)
+            if i in j.split():
+                skill_index.append(i)
+                break
 
     result = predictor(
         token_skills, model, comp_text, skills_conv.max_len, pos_conv.word_index
