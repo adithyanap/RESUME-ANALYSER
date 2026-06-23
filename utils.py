@@ -7,11 +7,8 @@ from tensorflow.keras.layers import LSTM, Dense, Dropout, Embedding
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
-
-
-df = pd.read_csv("job_skills.csv")
-skills = df["job_skills"]
-position = df["job_title"]
+import pypdf
+import sys
 
 
 class Converter:
@@ -30,7 +27,7 @@ class Converter:
 
         self.pad_data = pad_sequences(self.seq, padding="pre", maxlen=self.max_len)
 
-        self.word_index_pos = self.tok.word_index
+        self.word_index = self.tok.word_index
 
     def toCat(self):
 
@@ -78,3 +75,41 @@ def predictor(tok_skills, lstm_model, text, max_len, word_index_pos):
     pre_index = np.argmax(lstm_model.predict(seq))
     print(pre_index)
     return index_to_word[pre_index]
+
+
+def pdf2text():
+    class FormatError(Exception):
+        pass
+
+    if len(sys.argv) < 2:
+        sys.exit(1)
+
+    file_path = sys.argv[1]
+
+    if not file_path.lower().endswith(".pdf"):
+        raise FormatError("File format error: Input must be a PDF file.")
+
+    file = pypdf.PdfReader(file_path)
+    print("test")
+    data = []
+    full_text = ""
+    word = ""
+    temp_text = ""
+    sus = [",", ".", "(", ")", "/", ":", "@", "&"]
+    for i in file.pages:
+        text = i.extract_text().lower()
+        text += full_text
+    for j in range(len(text)):
+        if text[j] in sus:
+            temp_text += "\n"
+        else:
+            temp_text += text[j]
+
+    for p in temp_text:
+        if p != " ":
+            word += p
+        if p == "\n":
+            data.append(word[:-1])
+            word = ""
+
+    return data
