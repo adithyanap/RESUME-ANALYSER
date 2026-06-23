@@ -29,9 +29,11 @@ class Converter:
 
         self.word_index = self.tok.word_index
 
+        self.indices = np.array([seq[-1] for seq in self.seq])
+
     def toCat(self):
 
-        return to_categorical(self.pad_data, num_classes=self.vocab_size)
+        return to_categorical(self.indices, num_classes=self.vocab_size)
 
 
 def modelTrain(vocab_size_in, max_len, vocab_size_out, X, y):
@@ -97,13 +99,12 @@ def pdf2text():
     temp_text = ""
     sus = [",", ".", "(", ")", "/", ":", "@", "&"]
     for i in file.pages:
-        text = i.extract_text().lower()
-        text += full_text
-    for j in range(len(text)):
-        if text[j] in sus:
+        full_text += i.extract_text().lower()
+    for j in range(len(full_text)):
+        if full_text[j] in sus:
             temp_text += "\n"
         else:
-            temp_text += text[j]
+            temp_text += full_text[j]
 
     for p in temp_text:
         if p != " ":
