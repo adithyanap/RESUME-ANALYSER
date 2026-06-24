@@ -31,7 +31,7 @@ def main():
 
     model.save("model_lstm_git.h5")
     with open("index_to_word_git.pkl", "wb") as f:
-        pickle.dump(index_to_word, f)
+        pickle.dump(pos_conv.index_to_word, f)
 
     with open("token_skills_git.pkl", "wb") as f:
         pickle.dump(skills_conv.tok, f)
