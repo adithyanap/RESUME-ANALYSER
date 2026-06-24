@@ -13,7 +13,6 @@ def main():
     position = df["job_title"].str.lower()
     unique_skills = df["job_skills"].unique().tolist()
     comp_text = ""
-    skill_index = []
     vocab_size_in = 10000
     vocab_size_out = 3000
 
@@ -25,39 +24,53 @@ def main():
 
     y = pos_conv.toCat()
 
-    model = modelTrain(
-        vocab_size_in, skills_conv.max_len, vocab_size_out, skills_conv.pad_data, y
-    )
+    try:
+        data = pdf2text()
+        with open("index_to_word_rel.pkl", "rb") as file1:
+            index_to_word = pickle.load(file1)
 
-    model.save("model_lstm_git.h5")
-    with open("index_to_word_git.pkl", "wb") as f:
-        pickle.dump(pos_conv.index_to_word, f)
+        with open("token_skills_git_real.pkl", "rb") as file2:
+            token_skills = pickle.load(file2)
 
-    with open("token_skills_git.pkl", "wb") as f:
-        pickle.dump(skills_conv.tok, f)
+        model = load_model("lstm_model_real.h5")
+        for i in data:
+            for j in unique_skills:
+                if i in j.split():
+                    comp_text += f"{i} "
 
-    with open("index_to_word_real.pkl", "rb") as file1:
-        index_to_word = pickle.load(file1)
+        result = predictor(
+            token_skills, model, comp_text, skills_conv.max_len, index_to_word
+        )
 
-    with open("token_skills_git_real.pkl", "rb") as file2:
-        token_skills = pickle.load(file2)
+        print(f"position is {result}")
 
-    model = load_model("lstm_model_real.h5")
+    except (FileNotFoundError, IOError, Exception) as e:
+        print(f"Error ({e}). Retraining model...")
+        index_to_word = {}
+        for word, index in pos_conv.word_index.items():
+            index_to_word[index] = word
+        model = modelTrain(
+            vocab_size_in, skills_conv.max_len, vocab_size_out, skills_conv.pad_data, y
+        )
 
-    data = pdf2text()
+        model.save("lstm_model_real.h5")
+        with open("index_to_word_real.pkl", "wb") as f:
+            pickle.dump(index_to_word, f)
 
-    for i in data:
-        comp_text += f"{i} "
-        for j in unique_skills:
-            if i in j.split():
-                skill_index.append(i)
-                break
+        with open("token_skills_git_real.pkl", "wb") as f:
+            pickle.dump(skills_conv.tok, f)
+        data = pdf2text()
 
-    result = predictor(
-        token_skills, model, comp_text, skills_conv.max_len, pos_conv.word_index
-    )
+        for i in data:
+            for j in unique_skills:
+                if i in j.split():
+                    comp_text += f"{i} "
 
-    print(result)
+        result = predictor(
+            skills_conv.tok, model, comp_text, skills_conv.max_len, index_to_word
+        )
+
+        print(f"position is {result}")
 
 
 if __name__ == "__main__":
