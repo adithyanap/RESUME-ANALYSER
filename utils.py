@@ -72,19 +72,12 @@ def modelTrain(vocab_size_in, max_len, vocab_size_out, X, y):
     return lstm_model
 
 
-def predictor(tok_skills, lstm_model, text, max_len, word_index_pos):
-    index_to_word = {}
-    for word, index in word_index_pos.items():
-        index_to_word[index] = word
+def predictor(tok_skills, lstm_model, text, max_len, index_to_word):
     text = text.lower()
     seq = tok_skills.texts_to_sequences([text])
     seq = pad_sequences(seq, maxlen=max_len, padding="pre")
-    pred = lstm_model.predict(seq)[0]
-    confidence = pred.max()
-    if confidence < 0.5:
-        return "No matching job role found"
-    else:
-        return f"The position is {index_to_word[np.argmax(pred)]}"
+    pred = np.argmax(lstm_model.predict(seq))
+    return index_to_word[pred]
 
 
 def pdf2text():
