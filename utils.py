@@ -79,8 +79,12 @@ def predictor(tok_skills, lstm_model, text, max_len, word_index_pos):
     text = text.lower()
     seq = tok_skills.texts_to_sequences([text])
     seq = pad_sequences(seq, maxlen=max_len, padding="pre")
-    pre_index = np.argmax(lstm_model.predict(seq))
-    return pre_index
+    pred = lstm_model.predict(seq)[0]
+    confidence = pred.max()
+    if confidence < 0.5:
+        return "No matching job role found"
+    else:
+        return f"The position is {index_to_word[np.argmax(pred)]}"
 
 
 def pdf2text():
