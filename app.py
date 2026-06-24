@@ -57,7 +57,7 @@ def main():
         token_skills, model, comp_text, skills_conv.max_len, pos_conv.word_index
     )
 
-    print(f"predicted position is {index_to_word[result]}")
+    print(result)
 
 
 if __name__ == "__main__":
