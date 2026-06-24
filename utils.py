@@ -12,12 +12,17 @@ import sys
 
 
 class Converter:
-    def __init__(self, data, vocab_size):
+    def __init__(
+        self, data, vocab_size, filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n'
+    ):
         self.data = data
         self.vocab_size = vocab_size
+        self.filters = filters
 
     def sequences(self):
-        self.tok = Tokenizer(num_words=self.vocab_size, oov_token="<OO>")
+        self.tok = Tokenizer(
+            num_words=self.vocab_size, oov_token="<OO>", filters=self.filters
+        )
 
         self.tok.fit_on_texts(self.data)
 
@@ -75,8 +80,7 @@ def predictor(tok_skills, lstm_model, text, max_len, word_index_pos):
     seq = tok_skills.texts_to_sequences([text])
     seq = pad_sequences(seq, maxlen=max_len, padding="pre")
     pre_index = np.argmax(lstm_model.predict(seq))
-    print(pre_index)
-    return index_to_word[pre_index]
+    return pre_index
 
 
 def pdf2text():
@@ -92,7 +96,6 @@ def pdf2text():
         raise FormatError("File format error: Input must be a PDF file.")
 
     file = pypdf.PdfReader(file_path)
-    print("test")
     data = []
     full_text = ""
     word = ""
